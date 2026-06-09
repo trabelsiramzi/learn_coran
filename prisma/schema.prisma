@@ -1,0 +1,36 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Surah {
+  id               Int     @id
+  name_arabic      String
+  name_latin       String
+  revelation_type  String
+  total_ayahs      Int
+  ayahs            Ayah[]
+}
+
+model Ayah {
+  id               Int      @id @default(autoincrement())
+  surah_id         Int
+  number_in_surah  Int
+  text_rasm        String   // Arabic text optimized for Qalun
+  audio_url        String?
+  surah            Surah    @relation(fields: [surah_id], references: [id])
+  reviews          SpacedRepetition?
+}
+
+model SpacedRepetition {
+  ayah_id          Int      @id
+  easeFactor       Float    @default(2.5)
+  interval         Int      @default(0)
+  repetitions      Int      @default(0)
+  nextReviewDate   DateTime @default(now())
+  ayah             Ayah     @relation(fields: [ayah_id], references: [id])
+}
